@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Registration Detail</title>
+</head>
+<body>
+  <h2>Registration Detail</h2>
+  <p><strong>ID:</strong> {{ registration.id }}</p>
+  <p><strong>Name:</strong> {{ registration.name }}</p>
+  <p><strong>Email:</strong> {{ registration.email }}</p>
+  <p><strong>Course:</strong> {{ registration.course }}</p>
+  <a href="{% url 'admin_dashboard' %}">Back to Dashboard</a>
+</body>
+</html>

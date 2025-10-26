@@ -5,7 +5,11 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Profile, Course,Registration
 from .forms import RegistrationForm, LoginForm,CourseForm
 from django.contrib.auth.decorators import login_required
+from datetime import timedelta, date
 
+
+from django.http import HttpResponse
+import csv
 
 
 def index(request):
@@ -72,24 +76,33 @@ def logout_view(request):
     return redirect('login')
 
 
+from django.shortcuts import render
+from .models import Course, Registration
+from django.contrib.auth.decorators import login_required
+
 @login_required
 def admin_dashboard(request):
-    if not request.user.is_superuser:
-        return redirect('student_dashboard')
+    # --- Filtering ---
+    q = request.GET.get('q', '')
+    duration = request.GET.get('duration', '')
 
-    total_students = Profile.objects.filter(role='student').count()
-    total_courses = Course.objects.count()
-    total_registrations = Registration.objects.count()
+    courses = Course.objects.all()
+    if q:
+        courses = courses.filter(course_name__icontains=q)
+    if duration:
+        courses = courses.filter(duration__iexact=duration)
 
     registrations = Registration.objects.select_related('course').all()
 
     context = {
-        'total_students': total_students,
-        'total_courses': total_courses,
-        'total_registrations': total_registrations,
+        'courses': courses,
         'registrations': registrations,
+        'total_courses': courses.count(),
+        'total_students': Registration.objects.values('student_name').distinct().count(),
+        'total_registrations': registrations.count(),
     }
     return render(request, 'admin_dashboard.html', context)
+
 
 @login_required
 def student_dashboard(request):
@@ -143,3 +156,69 @@ def register_course(request, course_id):
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     return render(request, 'course_detail.html', {'course': course})
+
+def export_registrations(request):
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="registrations.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Name', 'Email', 'Course'])
+
+    for reg in Registration.objects.all():
+        writer.writerow([reg.id, reg.name, reg.email, reg.course])
+
+    return response
+
+def registration_detail(request, registration_id):
+    registration = get_object_or_404(Registration, id=registration_id)
+    return render(request, 'registration_detail.html', {'registration': registration})
+
+def delete_registration(request, registration_id):
+    registration = get_object_or_404(Registration, id=registration_id)
+    registration.delete()
+    return redirect('admin_dashboard')
+
+def report_active_courses(request):
+    # Filter courses that are active (assuming a boolean field named 'is_active')
+    active_courses = Course.objects.filter(is_active=True)
+    return render(request, 'report_active_courses.html', {'active_courses': active_courses})
+
+def report_registrations_last_30(request):
+    today = date.today()
+    last_30_days = today - timedelta(days=30)
+    recent_registrations = Registration.objects.filter(created_at__gte=last_30_days)
+
+    return render(request, 'report_registrations_last_30.html', {'recent_registrations': recent_registrations})
+
+def site_settings(request):
+    return render(request, 'site_settings.html')
+
+def edit_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.method == 'POST':
+        course_name = request.POST.get('course_name')
+        duration = request.POST.get('duration')
+        description = request.POST.get('description')
+
+        course.course_name = course_name
+        course.duration = duration
+        course.description = description
+        course.save()
+
+        messages.success(request, 'Course updated successfully.')
+        return redirect('admin_dashboard')
+
+    return render(request, 'edit_course.html', {'course': course})
+
+def delete_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.method == 'POST':
+        course.delete()
+        messages.success(request, 'Course deleted successfully.')
+        return redirect('admin_dashboard')
+    
+    # Optional: If someone visits the URL via GET, just redirect
+    return redirect('admin_dashboard')
