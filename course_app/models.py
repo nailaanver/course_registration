@@ -33,7 +33,7 @@ class Course(models.Model):
 class Registration(models.Model):
     student_name = models.CharField(max_length=100)
     course = models.ForeignKey(Course,on_delete=models.CASCADE, related_name='registration')
-    date_registered = models.DateField(auto_now_add=True)
+    date_registered = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f"{self.student_name} - {self.course.course_name}"

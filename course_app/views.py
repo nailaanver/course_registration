@@ -130,12 +130,15 @@ def add_course(request):
 def register_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
-    # Optional: Save registration
     if request.method == 'POST':
-        Registration.objects.create(student=request.user, course=course)
+        Registration.objects.create(
+            student_name=request.user.username,  # use username or any name
+            course=course
+        )
         return redirect('student_dashboard')
 
     return render(request, 'register_course.html', {'course': course})
+
 
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
