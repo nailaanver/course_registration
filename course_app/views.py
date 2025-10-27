@@ -163,14 +163,27 @@ def add_course(request):
 def register_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
-    if request.method == 'POST':
-        Registration.objects.create(
-            student_name=request.user.username,  # use username or any name
-            course=course
-        )
+    if Registration.objects.filter(student_name=request.user.username, course=course).exists():
+        messages.warning(request,f"you have already registered for {course.course_name}.")
         return redirect('student_dashboard')
+    
 
-    return render(request, 'register_course.html', {'course': course})
+    Registration.objects.create(
+        student_name = request.user.username,
+        course=course
+    )
+    
+    messages.success(request, f"you have successfully registered for {course.course_name}!")
+    
+    return redirect('student_dashboard')
+    # if request.method == 'POST':
+    #     Registration.objects.create(
+    #         student_name=request.user.username,  # use username or any name
+    #         course=course
+    #     )
+    #     return redirect('student_dashboard')
+
+    # return render(request, 'register_course.html', {'course': course})
 
 
 def course_detail(request, course_id):
