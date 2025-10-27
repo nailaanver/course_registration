@@ -55,7 +55,7 @@
   <!-- Page actions -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-      <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">➕ Add New Course</a>
+<a href="{% url 'add_course' %}" class="btn btn-primary">➕ Add New Course</a>
       <!-- <a href="{% url 'export_registrations' %}" class="btn btn-outline-secondary">⬇️ Export Registrations (CSV)</a> -->
     </div>
     <div class="text-end small-muted">Updated: {{ now|date:"M d, Y H:i" }}</div>
@@ -288,18 +288,67 @@
                     <td>{{ student.email }}</td>
                     <td>{{ student.date_joined|date:"M d, Y" }}</td>
                     <td class="text-center">
-                      <a href="{% url 'student_profile' student.id %}" class="btn btn-sm btn-outline-info">Profile</a>
-                      {% if student.is_active %}
-                        <form method="post" action="{% url 'deactivate_user' student.id %}" class="d-inline">
-                          {% csrf_token %}<button class="btn btn-sm btn-outline-warning">Deactivate</button>
-                        </form>
-                      {% else %}
-                        <form method="post" action="{% url 'activate_user' student.id %}" class="d-inline">
-                          {% csrf_token %}<button class="btn btn-sm btn-outline-success">Activate</button>
-                        </form>
-                      {% endif %}
-                    </td>
+
+
+                    <!-- Edit Button -->
+                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editStudentModal{{ student.id }}">Edit</button>
+
+                    <!-- Delete Button -->
+                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteStudentModal{{ student.id }}">Delete</button>
+                  </td>
                   </tr>
+                  <!-- Edit Student Modal -->
+<div class="modal fade" id="editStudentModal{{ student.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'edit_student' student.id %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Student — {{ student.username }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="full_name" value="{{ student.get_full_name }}" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" value="{{ student.email }}" class="form-control">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Student Modal -->
+<div class="modal fade" id="deleteStudentModal{{ student.id }}" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'delete_student' student.id %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Delete Student</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete <strong>{{ student.username }}</strong>?  
+          This action cannot be undone.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
                   {% empty %}
                   <tr><td colspan="4" class="text-center text-muted">No students found.</td></tr>
                   {% endfor %}

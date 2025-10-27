@@ -82,6 +82,9 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def admin_dashboard(request):
+    if not request.user.is_superuser:
+        return redirect('student_dashboard')
+
     # --- Filtering ---
     q = request.GET.get('q', '')
     duration = request.GET.get('duration', '')
@@ -94,14 +97,18 @@ def admin_dashboard(request):
 
     registrations = Registration.objects.select_related('course').all()
 
+    students = User.objects.filter(is_superuser=False).order_by('-date_joined')
+
     context = {
         'courses': courses,
         'registrations': registrations,
+        'students': students, 
         'total_courses': courses.count(),
-        'total_students': Registration.objects.values('student_name').distinct().count(),
+        'total_students': students.count(),  
         'total_registrations': registrations.count(),
     }
     return render(request, 'admin_dashboard.html', context)
+
 
 
 @login_required
@@ -221,4 +228,48 @@ def delete_course(request, course_id):
         return redirect('admin_dashboard')
     
     # Optional: If someone visits the URL via GET, just redirect
+    return redirect('admin_dashboard')
+
+@login_required
+def student_profile(request, student_id):
+    student = get_object_or_404(Profile, user__id=student_id)
+    return render(request, 'student_profile.html', {'student': student})
+
+@login_required
+def deactivate_user(request, user_id):
+    if not request.user.is_superuser:
+        return redirect('student_dashboard')
+    
+    user = get_object_or_404(User, id=user_id)
+    user.is_active = False  # deactivate the account
+    user.save()
+    
+    messages.success(request, f"{user.username} has been deactivated.")
+    return redirect('admin_dashboard')
+
+@login_required
+def edit_student(request, student_id):
+    if not request.user.is_superuser:
+        return redirect('student_dashboard')
+    student = get_object_or_404(User, id=student_id)
+    if request.method == 'POST':
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        if full_name:
+            parts = full_name.split()
+            student.first_name = parts[0]
+            student.last_name = ' '.join(parts[1:]) if len(parts) > 1 else ''
+        student.email = email
+        student.save()
+        messages.success(request, f"{student.username}'s details updated successfully!")
+    return redirect('admin_dashboard')
+
+
+@login_required
+def delete_student(request, student_id):
+    if not request.user.is_superuser:
+        return redirect('student_dashboard')
+    student = get_object_or_404(User, id=student_id)
+    student.delete()
+    messages.success(request, "Student deleted successfully.")
     return redirect('admin_dashboard')

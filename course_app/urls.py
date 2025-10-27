@@ -19,6 +19,8 @@ urlpatterns = [
     path('site-settings/', views.site_settings, name='site_settings'),
     path('course/edit/<int:course_id>/', views.edit_course, name='edit_course'),  # <-- add this
     path('course/delete/<int:course_id>/', views.delete_course, name='delete_course'),  # <-- Add this
+    path('edit_student/<int:student_id>/', views.edit_student, name='edit_student'),
+    path('delete_student/<int:student_id>/', views.delete_student, name='delete_student'),
 
 
 
