@@ -130,13 +130,16 @@ def student_dashboard(request):
     if duration_filter:
         courses = courses.filter(duration=duration_filter)
 
-    # Fetch the courses registered by the logged-in user
+    # Fetch registered courses for this student
     registered_courses = Registration.objects.filter(student_name=request.user.username)
+    registered_course_ids = registered_courses.values_list('course_id', flat=True)
 
     return render(request, 'student_dashboard.html', {
         'courses': courses,
         'registered_courses': registered_courses,
+        'registered_course_ids': registered_course_ids,  # ✅ new context
     })
+
 
 
 @login_required

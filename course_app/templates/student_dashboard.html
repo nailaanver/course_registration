@@ -96,7 +96,12 @@
                 <h6 class="card-title fw-bold text-primary">{{ course.course_name }}</h6>
                 <p class="card-text text-muted small flex-grow-1">{{ course.description|truncatechars:100 }}</p>
                 <p class="text-secondary"><strong>Duration:</strong> {{ course.get_duration_display }}</p>
-                <a href="{% url 'register_course' course.id %}" class="btn btn-success w-100 mt-auto">Register</a>
+{% if course.id in registered_course_ids %}
+  <button class="btn btn-secondary w-100 mt-auto" disabled>Already Registered</button>
+{% else %}
+  <a href="{% url 'register_course' course.id %}" class="btn btn-success w-100 mt-auto">Register</a>
+{% endif %}
+
               </div>
             </div>
           </div>
@@ -131,7 +136,6 @@
     <p class="text-center text-muted">You haven't registered for any courses yet.</p>
   {% endif %}
 </div>
-
 
 <footer class="text-center text-muted mt-5 mb-3">
   <small>© {{ now|date:"Y" }} Online Course Registration System</small>
