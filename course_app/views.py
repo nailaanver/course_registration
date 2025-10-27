@@ -118,7 +118,10 @@ def student_dashboard(request):
     if request.user.is_superuser:
         return redirect('admin_dashboard')
 
+    # Fetch all courses
     courses = Course.objects.all()
+
+    # Apply filters
     search_query = request.GET.get('q')
     duration_filter = request.GET.get('duration')
 
@@ -127,7 +130,14 @@ def student_dashboard(request):
     if duration_filter:
         courses = courses.filter(duration=duration_filter)
 
-    return render(request, 'student_dashboard.html', {'courses': courses})
+    # Fetch the courses registered by the logged-in user
+    registered_courses = Registration.objects.filter(student_name=request.user.username)
+
+    return render(request, 'student_dashboard.html', {
+        'courses': courses,
+        'registered_courses': registered_courses,
+    })
+
 
 @login_required
 def add_course(request):

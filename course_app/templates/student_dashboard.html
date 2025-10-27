@@ -107,6 +107,31 @@
     </div>
   </div>
 </div>
+<hr class="my-5">
+
+<h4 class="fw-bold mb-4">Your Registered Courses</h4>
+<div class="row">
+  {% if registered_courses %}
+    {% for reg in registered_courses %}
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+          {% if reg.course.course_image %}
+            <img src="{{ reg.course.course_image.url }}" class="img-fluid" alt="{{ reg.course.course_name }}">
+          {% endif %}
+          <div class="card-body d-flex flex-column">
+            <h6 class="card-title fw-bold text-success">{{ reg.course.course_name }}</h6>
+            <p class="text-secondary mb-2"><strong>Duration:</strong> {{ reg.course.duration }}</p>
+            <p class="text-muted small mb-3">Registered on: {{ reg.date_registered|date:"M d, Y" }}</p>
+            <a href="{% url 'course_detail' reg.course.id %}" class="btn btn-outline-primary btn-sm mt-auto">View Details</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-center text-muted">You haven't registered for any courses yet.</p>
+  {% endif %}
+</div>
+
 
 <footer class="text-center text-muted mt-5 mb-3">
   <small>© {{ now|date:"Y" }} Online Course Registration System</small>
