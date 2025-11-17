@@ -1,13 +1,69 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
+  <meta charset="UTF-8">
+  <title>Login | Course Registration</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Background styling */
+    body {
+      background: url("{% static 'images/login_bg.jpg' %}") no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Login box */
+    .login-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    h2 {
+      font-weight: 700;
+      color: #0d6efd;
+    }
+
+    .btn-success {
+      background-color: #198754;
+      border: none;
+    }
+
+    .btn-success:hover {
+      background-color: #157347;
+    }
+
+    .demo-box {
+      background: #f8f9fa;
+      border: 1px dashed #6c757d;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-top: 20px;
+    }
+
+    a {
+      text-decoration: none;
+      color: #0d6efd;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
-<body class="p-5">
-  <div class="container col-md-4">
-    <h2 class="mb-4 text-center">Login</h2>
+<body>
+
+  <div class="login-container">
+    <h2 class="text-center mb-4">Login</h2>
 
     {% for message in messages %}
       <div class="alert alert-{{ message.tags }}">{{ message }}</div>
@@ -23,13 +79,13 @@
       Don’t have an account?
       <a href="{% url 'register' %}">Register here</a>
     </p>
-    <div class="demo-box">
-        <strong>Admin Demo Login:</strong><br>
-        Username: <code>Naila_Anver</code><br>
-        Password: <code>naila@123</code>
-      </div>
+
+    <div class="demo-box text-center">
+      <strong>Admin Demo Login:</strong><br>
+      Username: <code>Naila_Anver</code><br>
+      Password: <code>naila@123</code>
+    </div>
   </div>
 
-  
 </body>
 </html>
